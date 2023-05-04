@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <link rel="stylesheet" href="./css/bootstrap.min.css" />
+  <head>
+    <title>MongoDB</title>
+  </head>
+  <body>
+    <table class="form-control">
+      <th>hello mongo</th>
+      <tr>
+        <td><input type="text" name="user" value="" class="form-control" /></td>
+        <td><button class="btn1 btn btn-primary">Add</button></td>
+      </tr>
+      <tr>
+        <td><button class="btn2 btn btn-info">List data</button></td>
+        <td><div class="output"></div></td>
+      </tr>
+    </table>
+    <script>
+      const input1 = document.querySelector('input[name="user"]');
+
+      const btn1 = document.querySelector(".btn1");
+      const btn2 = document.querySelector(".btn2");
+      const output = document.querySelector(".output");
+      const endpoint = "/users";
+
+//Function to create output when List data button is clicked.
+      function createOutput(data) {
+        output.innerHTML = "<div>Users</div>";
+        data.forEach((element) => {
+          const main = document.createElement("div");
+          const myInput = document.createElement("input");
+          myInput.setAttribute("type", "text");
+          myInput.className="form-control"
+          myInput.value = element.name;
+          main.append(myInput);
+
+//Button and Event listener to delete a user.
+          const button1 = document.createElement("button");
+          button1.textContent = "Delete";
+          button1.className="btn btn-danger";
+          main.append(button1);
+          button1.addEventListener("click", () => {
+            console.log("DELETE");
+            console.log(element);
+            fetch(endpoint, {
+              method: "delete",
+              body: JSON.stringify(element),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                if (data.status) {
+                  main.remove();
+                }
+              });
+          });
+          main.append(button1);
+          main.append("         ");
+        
+//Button and Event listener to update a user.
+          const button2 = document.createElement("button");
+          button2.textContent = "Update";
+          button2.className="btn btn-success"
+          main.append(button2);
+          button2.addEventListener("click", () => {
+            element.name = myInput.value;
+            console.log(element);
+            fetch(endpoint, {
+              method: "put",
+              body: JSON.stringify(element),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                console.log(data);
+              });
+          });
+          main.append(button2);
+         
+          output.append(main);
+        });
+      }
+
+//Event listener to list user data
+      btn2.addEventListener("click", () => {
+        fetch(endpoint)
+          .then((res) => res.json())
+          .then((data) => {
+            createOutput(data);
+          });
+      });
+
+//Event listener to add user button
+      btn1.addEventListener("click", () => {
+        console.log("post");
+        const data = { name: input1.value };
+        console.log(data);
+        fetch(endpoint, {
+          method: "post",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+          });
+      });
+    </script>
+  </body>
+</html>
