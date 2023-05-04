@@ -1,8 +1,5 @@
 const { MongoClient, ObjectId } = require("mongodb");
-const { expect } = require("chai");
-//const chaiHttp = require("chai-http");
 const request = require("supertest");
-//const assert = require("assert");
 const app = require("./app1");
 
 const MONGODB_URI =
@@ -12,13 +9,13 @@ describe("API endpoints", () => {
   let db, collection;
   let client;
 
-  before(async () => {
+  beforeAll(async () => {
     client = await MongoClient.connect(MONGODB_URI);
     db = client.db("people");
     collection = db.collection("friends");
   });
 
-  after(async () => {
+  afterAll(async () => {
     await client.close();
   });
 
@@ -26,8 +23,8 @@ describe("API endpoints", () => {
   describe("GET /users", () => {
     it("should return an array of users", async () => {
       const res = await request(app).get("/users");
-      expect(res.statusCode).to.equal(200);
-      expect(res.body).to.be.an("array");
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toBeInstanceOf(Array);
     });
   });
 
@@ -37,7 +34,7 @@ describe("API endpoints", () => {
     it("should create a new user", async () => {
       const user = { name: "John Doe" };
       const res = await request(app).post("/users").send(user);
-      expect(res.statusCode).to.equal(200);
+      expect(res.statusCode).toBe(200);
     });
   });
 
@@ -51,8 +48,8 @@ describe("API endpoints", () => {
         name: "Jane Doe kk",
       };
       const res = await request(app).put("/users").send(updatedUser);
-      expect(res.statusCode).to.equal(200);
-      expect(res.body.status).to.be.true;
+      expect(res.statusCode).toBe(200);
+      expect(res.body.status).toBe(true);
     });
   });
 
@@ -62,10 +59,10 @@ describe("API endpoints", () => {
       const user = { name: "John Doe" };
       const { insertedId } = await collection.insertOne(user);
       const res = await request(app).delete("/users").send({ _id: insertedId });
-      expect(res.statusCode).to.equal(200);
-      expect(res.body.status).to.be.true;
+      expect(res.statusCode).toBe(200);
+      expect(res.body.status).toBe(true);
       const foundUser = await collection.findOne({ _id: insertedId });
-      expect(foundUser).to.be.null;
+      expect(foundUser).toBeNull();
     });
   });
 });
